@@ -2,3 +2,4 @@ Flask
 pandas
 scikit-learn==1.6.1
 gunicorn
+xgboost==3.0.3
