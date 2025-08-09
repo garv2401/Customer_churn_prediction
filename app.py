@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # --- Load the Model and Encoders ---
 # Load the dictionary containing the model and feature names
-model_data = pickle.load(open('customer_churn_model.pkl', 'rb'))
+model_data = pickle.load(open('customer_churn_model_v2.pkl', 'rb'))
 model = model_data['model']
 model_feature_names = model_data['feature_names']
 
