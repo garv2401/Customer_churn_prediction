@@ -5,19 +5,25 @@ from flask import Flask, request, jsonify
 # Create a Flask app
 app = Flask(__name__)
 
-# --- Load the Model and Encoders ---
-# Load the dictionary containing the model and feature names
-model_data = pickle.load(open('customer_churn_model_v2.pkl', 'rb'))
-model = model_data['model']
-model_feature_names = model_data['feature_names']
+# --- Load the Model and Encoders Separately ---
+try:
+    with open('churn_model.pkl', 'rb') as f_model:
+        model = pickle.load(f_model)
+    
+    with open('encoders.pkl', 'rb') as f_encoders:
+        encoders = pickle.load(f_encoders)
 
-# Load the dictionary of encoders
-encoders = pickle.load(open('encoders.pkl', 'rb'))
-
+except FileNotFoundError:
+    # This will help you debug if files are missing in the deployment
+    model = None
+    encoders = None
 
 # --- Define the Prediction Endpoint ---
 @app.route('/predict', methods=['POST'])
 def predict():
+    if model is None or encoders is None:
+        return jsonify({'error': 'Model or encoders not loaded. Check server logs.'}), 500
+
     # Get the JSON data from the request
     json_data = request.get_json(force=True)
     
@@ -25,14 +31,15 @@ def predict():
     input_df = pd.DataFrame(json_data, index=[0])
 
     # --- Preprocessing the input data ---
-    # Apply the saved label encoders to the categorical columns
+    # Apply the saved label encoders
     for column, encoder in encoders.items():
         if column in input_df.columns:
-            # Use a lambda function to handle unseen labels gracefully
-            # It maps unseen values to -1, which you may need to handle
-            # or ensure your input data is clean.
+            # Use a lambda to handle unseen values during prediction
             input_df[column] = input_df[column].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else -1)
     
+    # Get the feature names the model was trained on
+    model_feature_names = model.feature_names_in_
+
     # Ensure all required feature columns are present, fill missing with 0
     for col in model_feature_names:
         if col not in input_df.columns:
@@ -47,7 +54,7 @@ def predict():
 
     # --- Format the Response ---
     churn_status = 'Yes' if prediction[0] == 1 else 'No'
-    probability = float(prediction_proba[0][1]) # Probability of churn (class 1)
+    probability = float(prediction_proba[0][1])
 
     return jsonify({
         'churn_prediction': churn_status,
@@ -55,5 +62,4 @@ def predict():
     })
 
 if __name__ == '__main__':
-    # The port is set to what Heroku expects
     app.run(host='0.0.0.0', port=5000)
