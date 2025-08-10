@@ -13,7 +13,7 @@ An end-to-end machine learning project that predicts customer churn for a fictio
 
 The API is live and can be accessed at the following URL. See the [API Usage](#-api-usage) section for instructions on how to interact with it.
 
-**API Link:** [https://customer-churn-prediction-g1gl.onrender.com](https://customer-churn-prediction-g1gl.onrender.com)
+**API Link:** [https://customer-churn-prediction-g1gl.onrender.com](https://customer-churn-prediction-g1gl.onrender.com/predict)
 
 ---
 
@@ -146,3 +146,4 @@ You can also test the endpoint from your terminal using `curl`:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{ "gender": "Male", "SeniorCitizen": 0, "Partner": "No", "Dependents": "No", "tenure": 2, "PhoneService": "Yes", "MultipleLines": "No", "InternetService": "Fiber optic", "OnlineSecurity": "No", "OnlineBackup": "No", "DeviceProtection": "No", "TechSupport": "No", "StreamingTV": "Yes", "StreamingMovies": "Yes", "Contract": "Month-to-month", "PaperlessBilling": "Yes", "PaymentMethod": "Electronic check", "MonthlyCharges": 9
+
